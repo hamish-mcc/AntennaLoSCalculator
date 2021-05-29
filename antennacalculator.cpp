@@ -28,47 +28,76 @@ void AntennaCalculator::updateDisplay()
     double altNm = (alt * 0.00016457883);
     // Convert degrees to radians
     double Q = (90 - aob - tilt) * (M_PI / 180);
-    // Stand off = altitude * tan(antenna down tilt)
+    double innerQ = (90 - aob - tilt - (bw / 2)) * (M_PI / 180);
+    double outerQ = (90 - aob - tilt + (bw / 2)) * (M_PI / 180);
+    // Distance = altitude * tan(antenna down tilt)
     double stoff = altNm * tan(Q);
+    double innerAz = altNm * tan(innerQ);
+    double outerAz = altNm * tan(outerQ);
 
-    // Update display
+    // Update LCD number display
     ui->standOffValue->display(stoff);
+    ui->innerAzValue->display(innerAz);
+    ui->outerAzValue->display(outerAz);
 
-    // Stand off vs Altitude
+    // LoS, i.e. stand off vs altitude
     QLineSeries *los = new QLineSeries();
-    los->append(0, alt);
-    los->append(stoff, 0);
+    los->append(-5, (5/0.00016457883) / tan(Q));
+    los->append(0, 0);
     los->setColor(QColor(0, 255, 0, 255));
 
     // Inner azimuth
-    double innerQ = (90 - aob - tilt - (bw / 2)) * (M_PI / 180);
-    double innerAz = altNm * tan(innerQ);
     QLineSeries *inner = new QLineSeries();
-    inner->append(0, alt);
-    inner->append(innerAz, 0);
+    inner->append(-stoff, alt);
+    inner->append(innerAz - stoff, 0);
     inner->setColor(QColor(255, 0, 0, 127));
 
     // Outer azimuth
-    double outerQ = (90 - aob - tilt + (bw / 2)) * (M_PI / 180);
-    double outerAz = altNm * tan(outerQ);
     QLineSeries *outer = new QLineSeries();
-    outer->append(0, alt);
-    outer->append(outerAz, 0);
+    outer->append(-stoff, alt);
+    outer->append(outerAz - stoff, 0);
     outer->setColor(QColor(255, 0, 0, 127));
+
+    // Aircraft marker
+    QScatterSeries *ac = new QScatterSeries();
+    ac->append(-stoff, alt);
+    ac->setMarkerSize(12);
 
     // Add data to chart
     QChart *fig = new QChart();
     fig->addSeries(los);
     fig->addSeries(inner);
     fig->addSeries(outer);
+    fig->addSeries(ac);
+
+    // Configure chart presentation
     fig->legend()->hide();
-    fig->createDefaultAxes();
-    fig->setTitle("LoS Profile");
+    fig->setTitle("Profile");
+    // TO DO: bold title
 
-    // Add chart to layout
+    // Configure axes
+    QValueAxis *axisX = new QValueAxis();
+    axisX->setRange(-5, 5);
+    axisX->setTitleText("Distance (NM)");
+    fig->addAxis(axisX, Qt::AlignBottom);
+    inner->attachAxis(axisX);
+    los->attachAxis(axisX);
+    outer->attachAxis(axisX);
+    ac->attachAxis(axisX);
+
+    QValueAxis *axisY = new QValueAxis();
+    axisY->setRange(0, 30000);
+    axisY->setTitleText("Altitude (ft)");
+    fig->addAxis(axisY, Qt::AlignLeft);
+    inner->attachAxis(axisY);
+    los->attachAxis(axisY);
+    outer->attachAxis(axisY);
+    ac->attachAxis(axisY);
+
+    // Remove old chart from layout
     delete ui->figLayout->takeAt(0);
+    // Add chart to layout
     QChartView *figView = new QChartView(fig);
-
     ui->figLayout->addWidget(figView);
 }
 
