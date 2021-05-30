@@ -404,7 +404,7 @@
         </widget>
        </item>
        <item row="1" column="0">
-        <widget class="QLabel" name="standOffLabel">
+        <widget class="QLabel" name="slantRangeLabel">
          <property name="minimumSize">
           <size>
            <width>90</width>
@@ -423,12 +423,12 @@
           </font>
          </property>
          <property name="text">
-          <string>Stand Off</string>
+          <string>Slant Range</string>
          </property>
         </widget>
        </item>
        <item row="1" column="1">
-        <widget class="QWidget" name="standOffDisplay" native="true">
+        <widget class="QWidget" name="slantRangeDisplay" native="true">
          <property name="minimumSize">
           <size>
            <width>100</width>
@@ -462,7 +462,7 @@
            <set>Qt::AlignBottom|Qt::AlignHCenter</set>
           </property>
          </widget>
-         <widget class="QLCDNumber" name="standOffValue">
+         <widget class="QLCDNumber" name="slantRangeValue">
           <property name="geometry">
            <rect>
             <x>0</x>

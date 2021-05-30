@@ -31,16 +31,16 @@ void AntennaCalculator::updateDisplay()
     double innerQ = (90 - aob - tilt - (bw / 2)) * (M_PI / 180);
     double outerQ = (90 - aob - tilt + (bw / 2)) * (M_PI / 180);
     // Distance = altitude * tan(antenna down tilt)
-    double stoff = altNm * tan(Q);
+    double slantRange = altNm * tan(Q);
     double innerAz = altNm * tan(innerQ);
     double outerAz = altNm * tan(outerQ);
 
     // Update LCD number display
-    ui->standOffValue->display(stoff);
+    ui->slantRangeValue->display(slantRange);
     ui->innerAzValue->display(innerAz);
     ui->outerAzValue->display(outerAz);
 
-    // LoS, i.e. stand off vs altitude
+    // LoS, i.e. slant range vs altitude
     QLineSeries *los = new QLineSeries();
     los->append(-5, (5/0.00016457883) / tan(Q));
     los->append(0, 0);
@@ -48,19 +48,19 @@ void AntennaCalculator::updateDisplay()
 
     // Inner azimuth
     QLineSeries *inner = new QLineSeries();
-    inner->append(-stoff, alt);
-    inner->append(innerAz - stoff, 0);
+    inner->append(-slantRange, alt);
+    inner->append(innerAz - slantRange, 0);
     inner->setColor(QColor(255, 0, 0, 127));
 
     // Outer azimuth
     QLineSeries *outer = new QLineSeries();
-    outer->append(-stoff, alt);
-    outer->append(outerAz - stoff, 0);
+    outer->append(-slantRange, alt);
+    outer->append(outerAz - slantRange, 0);
     outer->setColor(QColor(255, 0, 0, 127));
 
     // Aircraft marker
     QScatterSeries *ac = new QScatterSeries();
-    ac->append(-stoff, alt);
+    ac->append(-slantRange, alt);
     ac->setMarkerSize(12);
 
     // Add data to chart
